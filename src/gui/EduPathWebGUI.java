@@ -2,6 +2,7 @@ package gui;
 
 import com.sun.net.httpserver.HttpServer;
 import model.*;
+import util.FileManager;
 
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -70,10 +71,14 @@ public class EduPathWebGUI {
         Progress progress =
                 new Progress(student, course);
 
-        progress.updateProgress(80);
 
-        // Student has not taken the quiz yet
+        // Default values used only when no saved file exists
+        progress.updateProgress(80);
         progress.updateQuizScore(0);
+
+
+        // Load previous progress from file
+        FileManager.loadProgress(progress);
 
 
         // ==========================================
@@ -87,7 +92,6 @@ public class EduPathWebGUI {
 
 
         quiz.addQuestion(
-
                 new Question(
                         "What does OOP stand for?",
                         "Object Oriented Programming",
@@ -99,7 +103,6 @@ public class EduPathWebGUI {
 
 
         quiz.addQuestion(
-
                 new Question(
                         "Which language is used in this course?",
                         "Python",
@@ -111,7 +114,6 @@ public class EduPathWebGUI {
 
 
         quiz.addQuestion(
-
                 new Question(
                         "Which keyword creates an object in Java?",
                         "new",
@@ -128,12 +130,10 @@ public class EduPathWebGUI {
 
         HttpServer server =
                 HttpServer.create(
-
                         new InetSocketAddress(
                                 "0.0.0.0",
                                 8080
                         ),
-
                         0
                 );
 
@@ -284,6 +284,10 @@ public class EduPathWebGUI {
                 progress.updateProgress(100);
 
 
+                // Save progress to file
+                FileManager.saveProgress(progress);
+
+
                 response =
 
                         pageStart("Course Completed")
@@ -298,15 +302,21 @@ public class EduPathWebGUI {
 
                         +
 
-                        "<h2>Congratulations Alex!</h2>"
+                        "<h2>Congratulations "
+                        + student.getName()
+                        + "!</h2>"
 
                         +
 
-                        "<p>You completed Java Programming.</p>"
+                        "<p>You completed "
+                        + course.getCourseName()
+                        + ".</p>"
 
                         +
 
-                        "<p><b>Progress: 100%</b></p>"
+                        "<p><b>Progress: "
+                        + progress.getCompletedPercentage()
+                        + "%</b></p>"
 
                         +
 
@@ -381,7 +391,7 @@ public class EduPathWebGUI {
 
                             +
 
-                            "<label>"
+                            "<label class='answer-option'>"
 
                             +
 
@@ -390,12 +400,13 @@ public class EduPathWebGUI {
                             + "name='q"
                             + number
                             + "' "
-                            + "value='A'> "
+                            + "value='A'>"
 
                             +
 
-                            "A. "
+                            "<span>A. "
                             + question.getOptionA()
+                            + "</span>"
 
                             +
 
@@ -403,11 +414,7 @@ public class EduPathWebGUI {
 
                             +
 
-                            "<br>"
-
-                            +
-
-                            "<label>"
+                            "<label class='answer-option'>"
 
                             +
 
@@ -416,12 +423,13 @@ public class EduPathWebGUI {
                             + "name='q"
                             + number
                             + "' "
-                            + "value='B'> "
+                            + "value='B'>"
 
                             +
 
-                            "B. "
+                            "<span>B. "
                             + question.getOptionB()
+                            + "</span>"
 
                             +
 
@@ -429,11 +437,7 @@ public class EduPathWebGUI {
 
                             +
 
-                            "<br>"
-
-                            +
-
-                            "<label>"
+                            "<label class='answer-option'>"
 
                             +
 
@@ -442,12 +446,13 @@ public class EduPathWebGUI {
                             + "name='q"
                             + number
                             + "' "
-                            + "value='C'> "
+                            + "value='C'>"
 
                             +
 
-                            "C. "
+                            "<span>C. "
                             + question.getOptionC()
+                            + "</span>"
 
                             +
 
@@ -550,6 +555,10 @@ public class EduPathWebGUI {
 
 
                 progress.updateQuizScore(score);
+
+
+                // Save quiz score to file
+                FileManager.saveProgress(progress);
 
 
                 response =
@@ -655,6 +664,15 @@ public class EduPathWebGUI {
                                 password,
                                 users
                         );
+
+
+                // Runtime polymorphism:
+                // loginUser is a User reference but can point
+                // to either a Student or Teacher object.
+                if (loginUser != null) {
+
+                    loginUser.displayDashboard();
+                }
 
 
                 // ==================================
@@ -806,8 +824,7 @@ public class EduPathWebGUI {
                 // TEACHER DASHBOARD
                 // ==================================
 
-                else if (loginUser
-                        instanceof Teacher) {
+                else if (loginUser instanceof Teacher) {
 
 
                     Teacher loggedTeacher =
@@ -1166,7 +1183,6 @@ public class EduPathWebGUI {
 
 
         System.out.println(
-
                 "EduPath website running at "
                 + "http://localhost:8080"
         );
@@ -1253,7 +1269,9 @@ public class EduPathWebGUI {
 
                 +
 
-                "input{"
+                "input[type='text'],"
+                + "input[type='password'],"
+                + "input:not([type]){"
                 + "width:100%;"
                 + "padding:12px;"
                 + "margin:8px 0 18px 0;"
@@ -1293,10 +1311,27 @@ public class EduPathWebGUI {
                 +
 
                 ".question{"
-                + "padding:15px;"
+                + "padding:18px;"
                 + "margin:15px 0;"
                 + "background:#f8fafc;"
                 + "border-radius:8px;"
+                + "}"
+
+                +
+
+                ".answer-option{"
+                + "display:flex;"
+                + "align-items:center;"
+                + "gap:10px;"
+                + "margin:12px 0;"
+                + "cursor:pointer;"
+                + "}"
+
+                +
+
+                ".answer-option input[type='radio']{"
+                + "width:auto;"
+                + "margin:0;"
                 + "}"
 
                 +
@@ -1393,6 +1428,7 @@ public class EduPathWebGUI {
     // ==============================================
 
     private static String pageEnd() {
+
 
         return
 
