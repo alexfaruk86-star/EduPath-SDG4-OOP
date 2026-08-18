@@ -1,91 +1,102 @@
 package gui;
 
-import model.*;
-import com.sun.net.httpserver.*;
-import java.io.*;
-import java.net.*;
+import com.sun.net.httpserver.HttpServer;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 
 public class EduPathWebGUI {
 
     public static void main(String[] args) throws Exception {
 
-        // Create OOP objects
-        Student student = new Student(
-                "Alex",
-                "Computer Science"
-        );
-
-        Teacher teacher = new Teacher(
-                "Dr Ahmad",
-                "T001",
-                "Programming"
-        );
-
-
         HttpServer server = HttpServer.create(
-                new InetSocketAddress(8080), 
+                new InetSocketAddress("0.0.0.0", 8080), 
                 0
         );
 
-
         server.createContext("/", exchange -> {
 
-            String response = 
-            """
-            <html>
+            String response = """
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>EduPath - SDG 4 Quality Education</title>
 
-            <head>
-                <title>EduPath SDG 4</title>
-            </head>
+                        <style>
+                            body {
+                                font-family: Arial;
+                                background-color: #f4f6f8;
+                                padding: 40px;
+                            }
+
+                            .card {
+                                background:white;
+                                padding:30px;
+                                border-radius:15px;
+                                width:500px;
+                                box-shadow:0 0 10px gray;
+                            }
+
+                            h1 {
+                                color:#1a73e8;
+                            }
+
+                            h2 {
+                                color:#333;
+                            }
+
+                            p {
+                                font-size:18px;
+                            }
+                        </style>
+
+                    </head>
+
+                    <body>
+
+                        <div class="card">
+
+                            <h1>
+                            EduPath - SDG 4 Quality Education
+                            </h1>
+
+                            <hr>
+
+                            <h2>
+                            Course Information
+                            </h2>
+
+                            <p>
+                            Course: Java Programming
+                            </p>
+
+                            <p>
+                            Teacher: Dr Ahmad
+                            </p>
 
 
-            <body>
+                            <h2>
+                            Student Progress
+                            </h2>
 
-            <h1>EduPath - SDG 4 Quality Education</h1>
+                            <p>
+                            Student: Alex
+                            </p>
 
-            <hr>
+                            <p>
+                            Completion: 80%
+                            </p>
 
-
-            <h2>Course Information</h2>
-
-            <p>
-            Course: Java Programming
-            </p>
-
-
-            <p>
-            Teacher: """ + teacher.getName() + """
-            </p>
+                            <p>
+                            Quiz Score: 9/10
+                            </p>
 
 
+                        </div>
 
-            <h2>Student Progress</h2>
+                    </body>
 
-
-            <p>
-            Student: """ + student.getName() + """
-            </p>
-
-
-            <p>
-            Course: """ + student.getCourse() + """
-            </p>
-
-
-            <p>
-            Completion: 80%
-            </p>
-
-
-            <p>
-            Quiz Score: 9/10
-            </p>
-
-
-            </body>
-
-            </html>
-            """;
+                    </html>
+                    """;
 
 
             exchange.getResponseHeaders()
@@ -94,7 +105,7 @@ public class EduPathWebGUI {
 
             exchange.sendResponseHeaders(
                     200,
-                    response.length()
+                    response.getBytes().length
             );
 
 
@@ -111,9 +122,7 @@ public class EduPathWebGUI {
 
 
         System.out.println(
-            "EduPath website running at http://localhost:8080"
+                "EduPath website running at http://localhost:8080"
         );
-
     }
-
 }
