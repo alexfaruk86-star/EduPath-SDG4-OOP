@@ -32,13 +32,44 @@ public class Progress {
     }
 
 
+    public Student getStudent() {
+
+        return student;
+
+    }
+
+
+    public Course getCourse() {
+
+        return course;
+
+    }
+
+
+    public int getCompletedPercentage() {
+
+        return completedPercentage;
+
+    }
+
+
+    public int getQuizScore() {
+
+        return quizScore;
+
+    }
+
+
     public void displayProgress() {
 
         System.out.println("Student: " + student.getName());
+
         System.out.println("Course: " + course.getCourseName());
-        System.out.println("Completion: " 
+
+        System.out.println("Completion: "
                 + completedPercentage + "%");
-        System.out.println("Quiz Score: " 
+
+        System.out.println("Quiz Score: "
                 + quizScore);
 
     }

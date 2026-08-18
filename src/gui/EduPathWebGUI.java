@@ -1,121 +1,152 @@
 package gui;
 
 import com.sun.net.httpserver.HttpServer;
+import model.*;
+
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
+
 public class EduPathWebGUI {
+
 
     public static void main(String[] args) throws Exception {
 
+
+        Teacher teacher = new Teacher(
+                "T001",
+                "Dr Ahmad",
+                "12345",
+                "TE001",
+                "Java Programming"
+        );
+
+
+        Course course = new Course(
+                "C001",
+                "Java Programming",
+                "Object Oriented Programming Course",
+                teacher
+        );
+
+
+        Student student = new Student(
+                "U001",
+                "Alex",
+                "password",
+                "ST001",
+                "Java Programming"
+        );
+
+
+        Progress progress = new Progress(student, course);
+
+        progress.updateProgress(80);
+        progress.updateQuizScore(9);
+
+
+
         HttpServer server = HttpServer.create(
-                new InetSocketAddress("0.0.0.0", 8080), 
+                new InetSocketAddress("0.0.0.0",8080),
                 0
         );
 
+
+
         server.createContext("/", exchange -> {
 
-            String response = """
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>EduPath - SDG 4 Quality Education</title>
 
-                        <style>
-                            body {
-                                font-family: Arial;
-                                background-color: #f4f6f8;
-                                padding: 40px;
-                            }
+            String response =
 
-                            .card {
-                                background:white;
-                                padding:30px;
-                                border-radius:15px;
-                                width:500px;
-                                box-shadow:0 0 10px gray;
-                            }
+            "<html>" +
+            "<head>" +
+            "<title>EduPath Dashboard</title>" +
 
-                            h1 {
-                                color:#1a73e8;
-                            }
+            "<style>" +
 
-                            h2 {
-                                color:#333;
-                            }
+            "body{" +
+            "font-family:Arial;" +
+            "background:#f2f7ff;" +
+            "padding:40px;" +
+            "}" +
 
-                            p {
-                                font-size:18px;
-                            }
-                        </style>
+            ".card{" +
+            "background:white;" +
+            "padding:25px;" +
+            "width:400px;" +
+            "border-radius:15px;" +
+            "box-shadow:0 4px 10px gray;" +
+            "}" +
 
-                    </head>
+            "h1{color:#2563eb;}" +
 
-                    <body>
+            "</style>" +
 
-                        <div class="card">
-
-                            <h1>
-                            EduPath - SDG 4 Quality Education
-                            </h1>
-
-                            <hr>
-
-                            <h2>
-                            Course Information
-                            </h2>
-
-                            <p>
-                            Course: Java Programming
-                            </p>
-
-                            <p>
-                            Teacher: Dr Ahmad
-                            </p>
+            "</head>" +
 
 
-                            <h2>
-                            Student Progress
-                            </h2>
+            "<body>" +
 
-                            <p>
-                            Student: Alex
-                            </p>
+            "<div class='card'>" +
 
-                            <p>
-                            Completion: 80%
-                            </p>
+            "<h1>EduPath - SDG 4 Quality Education</h1>" +
 
-                            <p>
-                            Quiz Score: 9/10
-                            </p>
+            "<hr>" +
+
+            "<h2>Course Information</h2>" +
+
+            "Course: " + course.getCourseName() +
+
+            "<br><br>" +
+
+            "Teacher: " + course.getTeacher().getName() +
+
+            "<br><br>" +
+
+            "Description: " + course.getDescription() +
 
 
-                        </div>
+            "<h2>Student Progress</h2>" +
 
-                    </body>
+            "Student: " + student.getName() +
 
-                    </html>
-                    """;
+            "<br><br>" +
+
+            "Completion: " + progress.getCompletedPercentage() + "%" +
+
+            "<br><br>" +
+
+            "Quiz Score: " + progress.getQuizScore() + "/10" +
+
+
+            "</div>" +
+
+            "</body>" +
+
+            "</html>";
+
 
 
             exchange.getResponseHeaders()
-                    .set("Content-Type", "text/html");
-
+                    .set("Content-Type","text/html");
 
             exchange.sendResponseHeaders(
                     200,
-                    response.getBytes().length
+                    response.length()
             );
 
 
-            OutputStream os = exchange.getResponseBody();
+            OutputStream os =
+                    exchange.getResponseBody();
+
 
             os.write(response.getBytes());
 
             os.close();
 
+
         });
+
 
 
         server.start();
@@ -124,5 +155,8 @@ public class EduPathWebGUI {
         System.out.println(
                 "EduPath website running at http://localhost:8080"
         );
+
+
     }
+
 }
